@@ -11,6 +11,8 @@ from urllib.parse import urlparse
 import pandas as pd
 import os
 
+import logConfig
+
 def product_titles_present(driver):
   product_titles = driver.find_elements(By.CLASS_NAME, 'link_product')
   return product_titles
@@ -73,6 +75,9 @@ def scrape_kakao_store(keyword, page):
       seller_name = url.path.split('/')[1]
       seller_list.append(seller_name)
 
+    logConfig.logger.info(f'{i + 1}번째 페이지 완료')
+    
+
   result = {
     'profileImageUrl': [],
     'name': [],
@@ -110,6 +115,8 @@ def scrape_kakao_store(keyword, page):
       result['isFarmer'].append(json_data['data']['store'].get('isFarmer', ''))
       result['consultId'].append(json_data['data']['store'].get('consultId', ''))
 
+    logConfig.logger.info(f'{idx + 1}번째 상품 완료')
+
   def save_seller_dataframe():
     # Saves dataframe in excel file format.
     print("Storing data, almost done....")
@@ -125,5 +132,6 @@ def scrape_kakao_store(keyword, page):
   save_seller_dataframe()
   print(seller_list)
   print(len(seller_list))
+  logConfig.logger.info(f'엑셀로 변환 완료')
 
   driver.quit()

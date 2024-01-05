@@ -93,14 +93,18 @@ def scrape_coupang(keyword, page):
       if tbody:
         tr_list = tbody.find_all('tr')
         if len(tr_list) != 1:
-          result_link.append(target_url)
           seller_phone_number.append(tr_list[1].find_all('td')[0].text)
           seller_email.append(tr_list[1].find_all('td')[1].text)
           # print(tr_list[1].find_all('th')[0].text)
           # print(tr_list[1].find_all('td')[0].text)
           # print(tr_list[1].find_all('th')[1].text)
           # print(tr_list[1].find_all('td')[1].text)
+        else:
+          seller_phone_number.append('-')
+          seller_email.append('-')
       else:
+        seller_phone_number.append('-')
+        seller_email.append('-')
         print('no tbody')
       print('--------------------------')
 
@@ -108,7 +112,7 @@ def scrape_coupang(keyword, page):
   driver.quit()
 
   result = {}
-  result['product_link'] = target_url
+  result['product_link'] = link_list
   result['seller_phone_number'] = seller_phone_number
   result['seller_email'] = seller_email
 
