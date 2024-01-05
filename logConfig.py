@@ -1,5 +1,6 @@
 import logging
 import datetime
+import os
 
 # 현재 날짜와 시간을 불러오기
 current_datetime = datetime.datetime.now()
@@ -10,6 +11,9 @@ day = current_datetime.day
 hour = current_datetime.hour
 minute = current_datetime.minute
 second = current_datetime.second
+
+if not os.path.exists('log'):
+  os.makedirs('log')
 
 numeric_datetime = f"log/{year:04d}{month:02d}{day:02d}{hour:02d}{minute:02d}{second:02d}.txt"
 

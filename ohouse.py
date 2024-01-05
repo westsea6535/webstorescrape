@@ -1,13 +1,11 @@
 import requests
-import pandas as pd
-
-import time
-import os
+import logConfig
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"}
 
 def scrape_ohouse(keyword, page):
 
+  logConfig.logger.info(f'{keyword} 키워드로 오늘의 집 크롤링 시작')
   product_id_list = []
 
   for i in range(page):
@@ -20,8 +18,12 @@ def scrape_ohouse(keyword, page):
       for product in json_data['productions']:
         print(f"{i}: {product['name']}")
         product_id_list.append(product['id'])
+      logConfig.logger.info(f'{i + 1}/{page} 페이지 완료')
     else:
       print(response.status_code)
+      logConfig.logger.info(f'Error while fetching list {idx + 1}. Error code: {response.status_code}')
+  
+  logConfig.logger.info(f'총 {len(product_id_list)}개의 상품 검색 완료. 판매자 데이터 스크래핑 시작.')
 
   seller_info_company = []
   seller_info_representative = []
@@ -30,7 +32,7 @@ def scrape_ohouse(keyword, page):
   seller_info_email = []
   seller_info_license = []
 
-  for product_id in product_id_list:
+  for idx, product_id in enumerate(product_id_list):
     url = f"https://ohou.se/productions/{product_id}/delivery.json"
 
     response = requests.get(url, headers=headers)
@@ -45,8 +47,10 @@ def scrape_ohouse(keyword, page):
       seller_info_email.append(seller_info.get('email', ''))
       seller_info_license.append(seller_info.get('license', ''))
 
+      logConfig.logger.info(f'{idx + 1}번째 상품 완료')
     else:
       print(response.status_code)
+      logConfig.logger.info(f'Error while fetching product {idx + 1}. Error code: {response.status_code}')
     
   return {
     'seller_info_company': seller_info_company,
@@ -56,21 +60,3 @@ def scrape_ohouse(keyword, page):
     'seller_info_email': seller_info_email,
     'seller_info_license': seller_info_license,
   }
-
-keyword = '의자'
-download_path = "./result_ohouse"
-
-result =  scrape_ohouse(keyword, 1)
-
-# Saves dataframe in CSV file format.
-print("Storing data, almost done....")
-reviews_ratings_df = pd.DataFrame(result)
-# reviews_ratings_df = reviews_ratings_df.iloc[1: ,]
-time.sleep(2)
-# Convert to CSV and save in Downloads.
-if not os.path.exists(download_path):
-  os.makedirs(download_path)
-
-# reviews_ratings_df.to_excel(f'{download_path}/result.xlsx', index=False, encoding='utf-8-sig')
-reviews_ratings_df.to_excel(f'{download_path}/{keyword}.xlsx', index=False)
-data_rows = "{:,}".format(reviews_ratings_df.shape[0])

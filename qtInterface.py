@@ -2,6 +2,12 @@ from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QIntValidator
 from kakao import scrape_kakao_store
 from coupang import scrape_coupang
+from ohouse import scrape_ohouse
+
+import pandas as pd
+
+import time
+import os
 
 class guiForm(QWidget):
   def __init__(self):
@@ -11,8 +17,9 @@ class guiForm(QWidget):
   def init_ui(self):
     # 위젯 생성
     self.label_platform = QLabel('스토어 선택')
-    self.radio_kakao = QRadioButton('Kakao')
-    self.radio_coupang = QRadioButton('Coupang')
+    self.radio_kakao = QRadioButton('카카오스토어')
+    self.radio_coupang = QRadioButton('쿠팡')
+    self.radio_ohouse = QRadioButton('오늘의 집')
 
     self.label_keywords = QLabel('검색어:')
     self.input_keywords = QLineEdit()
@@ -28,6 +35,7 @@ class guiForm(QWidget):
     layout.addWidget(self.label_platform)
     layout.addWidget(self.radio_kakao)
     layout.addWidget(self.radio_coupang)
+    layout.addWidget(self.radio_ohouse)
 
     layout.addWidget(self.label_keywords)
     layout.addWidget(self.input_keywords)
@@ -48,18 +56,46 @@ class guiForm(QWidget):
     self.setGeometry(1000, 1000, 1000, 300)
     self.setFixedSize(1000, 300)
 
+
+
   def onButtonClick(self):
-    platform = "Kakao" if self.radio_kakao.isChecked() else "Coupang"
+    def save_seller_dataframe(result, download_path, keyword):
+      # Saves dataframe in CSV file format.
+      print("Storing data, almost done....")
+      reviews_ratings_df = pd.DataFrame(result)
+      # reviews_ratings_df = reviews_ratings_df.iloc[1: ,]
+      time.sleep(2)
+      # Convert to CSV and save in Downloads.
+      if not os.path.exists(download_path):
+        os.makedirs(download_path)
+
+      reviews_ratings_df.to_excel(f'{download_path}/{keyword}.xlsx', index=False)
+
+    platform = ""
+    if self.radio_kakao.isChecked():
+      platform = "Kakao"
+    elif self.radio_coupang.isChecked():
+      platform = "Coupang"
+    elif self.radio_ohouse.isChecked():
+      platform = "Ohouse"
+    
     keywords = self.input_keywords.text().split(',')
+
     page = self.input_page.text()
+
     if platform == "Kakao":
       for keyword in keywords:
-        scrape_kakao_store(keyword, int(page))
+        result = scrape_kakao_store(keyword, int(page))
+        save_seller_dataframe(result, './result_kakao', keyword)
     elif platform == "Coupang":
       for keyword in keywords:
-        scrape_coupang(keyword, int(page))
+        result = scrape_coupang(keyword, int(page))
+        save_seller_dataframe(result, './result_coupang', keyword)
+    elif platform == "Ohouse":
+      for keyword in keywords:
+        result = scrape_ohouse(keyword, int(page))
+        save_seller_dataframe(result, './result_ohouse', keyword)
 
-    # 여기에 검색 결과를 처리하는 코드를 추가하세요.
     print(f"플랫폼: {platform}")
     print(f"검색어: {keywords}")
     print(f"페이지 번호: {page}")

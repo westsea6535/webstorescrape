@@ -8,8 +8,6 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import requests
 from urllib.parse import urlparse
-import pandas as pd
-import os
 
 import logConfig
 
@@ -24,7 +22,7 @@ def link_arrow_present(driver):
 
 
 def scrape_kakao_store(keyword, page):
-  download_path = "./result_kakao"
+  logConfig.logger.info(f'{keyword} 키워드로 카카오 스토어 크롤링 시작')
 
   # Windowless mode feature (Chrome) and chrome message handling.
   options = webdriver.ChromeOptions()
@@ -75,8 +73,9 @@ def scrape_kakao_store(keyword, page):
       seller_name = url.path.split('/')[1]
       seller_list.append(seller_name)
 
-    logConfig.logger.info(f'{i + 1}번째 페이지 완료')
-    
+    logConfig.logger.info(f'{i + 1}/{page} 페이지 완료')
+
+  logConfig.logger.info(f'총 {len(seller_list)}개의 상품 검색 완료. 판매자 데이터 스크래핑 시작.')
 
   result = {
     'profileImageUrl': [],
@@ -117,21 +116,5 @@ def scrape_kakao_store(keyword, page):
 
     logConfig.logger.info(f'{idx + 1}번째 상품 완료')
 
-  def save_seller_dataframe():
-    # Saves dataframe in excel file format.
-    print("Storing data, almost done....")
-    reviews_ratings_df = pd.DataFrame(result)
-    time.sleep(2)
-    # Convert to CSV and save in Downloads.
-    if not os.path.exists(download_path):
-      os.makedirs(download_path)
-
-    reviews_ratings_df.to_excel(f'{download_path}/{keyword}.xlsx', index=False)
-    data_rows = "{:,}".format(reviews_ratings_df.shape[0])
-
-  save_seller_dataframe()
-  print(seller_list)
-  print(len(seller_list))
-  logConfig.logger.info(f'엑셀로 변환 완료')
-
   driver.quit()
+  return result

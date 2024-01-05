@@ -7,10 +7,8 @@ from selenium.common.exceptions import NoSuchElementException
 
 
 from bs4 import BeautifulSoup
-import pandas as pd
-
 import time
-import os
+import logConfig
 
 # Find the button for title
 def product_titles_present(driver):
@@ -28,7 +26,7 @@ def seller_table_present(driver):
   return driver.find_element(By.XPATH, "//div[@class='product-item__table product-seller']//table[@class='prod-delivery-return-policy-table']")
 
 def scrape_coupang(keyword, page):
-  download_path = "./result_coupang"
+  logConfig.logger.info(f'{keyword} 키워드로 쿠팡 스토어 크롤링 시작')
 
   # Windowless mode feature (Chrome) and chrome message handling.
   options = webdriver.ChromeOptions()
@@ -64,49 +62,48 @@ def scrape_coupang(keyword, page):
       anchorTag = title.find_element(By.TAG_NAME, 'a')
       link_list.append(anchorTag.get_attribute('href'))
 
-  for page in range(page):
-    scrape_list_page(page+1)
+  for current_page in range(page):
+    scrape_list_page(current_page + 1)
+    logConfig.logger.info(f'{current_page}/{page} 페이지 완료')
 
   print(link_list)
+  logConfig.logger.info(f'총 {len(link_list)}개의 상품 검색 완료. 판매자 데이터 스크래핑 시작.')
 
-
-  result_link = []
   for idx, target_url in enumerate(link_list):
-    # if idx <= 13:
-      print(target_url)
-      driver.get(target_url)
-      time.sleep(1.5)
-      # Click '배송/교환/반품 안내' button
-      delivery_guide_button = wait.until(delivery_guide_button_present)
-      if delivery_guide_button is None:
-        continue
+    print(target_url)
+    driver.get(target_url)
+    time.sleep(1.5)
+    # Click '배송/교환/반품 안내' button
+    delivery_guide_button = wait.until(delivery_guide_button_present)
+    if delivery_guide_button is None:
+      continue
 
-      delivery_guide_button.click()
+    delivery_guide_button.click()
 
-      seller_table = wait.until(seller_table_present)
-      
-      table_html_content = seller_table.get_attribute('innerHTML')
-      soup = BeautifulSoup(table_html_content, 'html.parser')
-      tbody = soup.find('tbody')
+    seller_table = wait.until(seller_table_present)
+    
+    table_html_content = seller_table.get_attribute('innerHTML')
+    soup = BeautifulSoup(table_html_content, 'html.parser')
+    tbody = soup.find('tbody')
 
-      # print(tbody)
-      if tbody:
-        tr_list = tbody.find_all('tr')
-        if len(tr_list) != 1:
-          seller_phone_number.append(tr_list[1].find_all('td')[0].text)
-          seller_email.append(tr_list[1].find_all('td')[1].text)
-          # print(tr_list[1].find_all('th')[0].text)
-          # print(tr_list[1].find_all('td')[0].text)
-          # print(tr_list[1].find_all('th')[1].text)
-          # print(tr_list[1].find_all('td')[1].text)
-        else:
-          seller_phone_number.append('-')
-          seller_email.append('-')
+    # print(tbody)
+    if tbody:
+      tr_list = tbody.find_all('tr')
+      if len(tr_list) != 1:
+        seller_phone_number.append(tr_list[1].find_all('td')[0].text)
+        seller_email.append(tr_list[1].find_all('td')[1].text)
+        # print(tr_list[1].find_all('th')[0].text)
+        # print(tr_list[1].find_all('td')[0].text)
+        # print(tr_list[1].find_all('th')[1].text)
+        # print(tr_list[1].find_all('td')[1].text)
       else:
         seller_phone_number.append('-')
         seller_email.append('-')
-        print('no tbody')
-      print('--------------------------')
+    else:
+      seller_phone_number.append('-')
+      seller_email.append('-')
+      print('no tbody')
+    logConfig.logger.info(f'{idx + 1}번째 상품 완료')
 
   # Close the WebDriver when done
   driver.quit()
@@ -116,21 +113,4 @@ def scrape_coupang(keyword, page):
   result['seller_phone_number'] = seller_phone_number
   result['seller_email'] = seller_email
 
-
-  def save_seller_dataframe():
-    # Saves dataframe in CSV file format.
-
-    print("Storing data, almost done....")
-    reviews_ratings_df = pd.DataFrame(result)
-    # reviews_ratings_df = reviews_ratings_df.iloc[1: ,]
-    time.sleep(2)
-    # Convert to CSV and save in Downloads.
-    if not os.path.exists(download_path):
-      os.makedirs(download_path)
-
-    # reviews_ratings_df.to_excel(f'{download_path}/result.xlsx', index=False, encoding='utf-8-sig')
-    reviews_ratings_df.to_excel(f'{download_path}/{keyword}.xlsx', index=False)
-    data_rows = "{:,}".format(reviews_ratings_df.shape[0])
-
-  print(result)
-  save_seller_dataframe()
+  return result
