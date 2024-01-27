@@ -3,8 +3,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException
 
+import chromedriver_autoinstaller
+import os
 
 from bs4 import BeautifulSoup
 import time
@@ -27,13 +28,27 @@ def seller_table_present(driver):
 def scrape_coupang(keyword, page):
   logConfig.logger.info(f'{keyword} 키워드로 쿠팡 스토어 크롤링 시작')
   logConfig.logger.info(f'총 {page} 페이지 검색')
+
+  chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
+
+  driver_path = f'./chromedriver/{chrome_ver}/chromedriver.exe'
+
+
+  if os.path.exists(driver_path):
+    print(f"chrom driver is installed: {driver_path}")
+  else:
+    if not os.path.exists(f'./chromedriver'):
+      os.makedirs(f'./chromedriver')
+    print(f"install the chrome driver(ver: {chrome_ver})")
+    chromedriver_autoinstaller.install(path=f'./chromedriver')
+
   # Windowless mode feature (Chrome) and chrome message handling.
   options = webdriver.ChromeOptions()
   options.headless = True # Runs driver without opening a chrome browser.
   options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
   # Initialization of web driver
-  driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options = options)
+  driver = webdriver.Chrome(service=ChromeService(executable_path=driver_path), options = options)
   driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument",
                           {"source": """ Object.defineProperty(navigator, 'webdriver', {get: () => undefined }) """ }
                         )
@@ -63,7 +78,7 @@ def scrape_coupang(keyword, page):
 
   for current_page in range(page):
     scrape_list_page(current_page + 1)
-    logConfig.logger.info(f'{current_page}/{page} 페이지 완료')
+    logConfig.logger.info(f'{current_page + 1}/{page} 페이지 완료')
 
   print(link_list)
   logConfig.logger.info(f'총 {len(link_list)}개의 상품 검색 완료. 판매자 데이터 스크래핑 시작.')
@@ -81,6 +96,8 @@ def scrape_coupang(keyword, page):
       print("exception")
 
     if delivery_guide_button is None:
+      seller_phone_number.append('-')
+      seller_email.append('-')
       continue
 
     delivery_guide_button.click()
@@ -94,16 +111,19 @@ def scrape_coupang(keyword, page):
     # print(tbody)
     if tbody:
       tr_list = tbody.find_all('tr')
-      if len(tr_list) != 1:
-        seller_phone_number.append(tr_list[1].find_all('td')[0].text)
-        seller_email.append(tr_list[1].find_all('td')[1].text)
-        # print(tr_list[1].find_all('th')[0].text)
-        # print(tr_list[1].find_all('td')[0].text)
-        # print(tr_list[1].find_all('th')[1].text)
-        # print(tr_list[1].find_all('td')[1].text)
-      else:
+      if len(tr_list) == 1:
         seller_phone_number.append('-')
         seller_email.append('-')
+      elif len(tr_list) == 4:
+        print(f'tr len is 4, {tr_list[1].find_all("td")[0].text}, {tr_list[1].find_all("td")[1].text}')
+        print(f'tr len is 4, {tr_list[2].find_all("td")[0].text}, {tr_list[2].find_all("td")[1].text}')
+        seller_phone_number.append(tr_list[1].find_all('td')[0].text)
+        seller_email.append(tr_list[1].find_all('td')[1].text)
+      elif len(tr_list) == 5:
+        print(f'tr len is 5, {tr_list[1].find_all("td")[0].text}, {tr_list[1].find_all("td")[1].text}')
+        print(f'tr len is 5, {tr_list[2].find_all("td")[0].text}, {tr_list[2].find_all("td")[1].text}')
+        seller_phone_number.append(tr_list[2].find_all('td')[0].text)
+        seller_email.append(tr_list[2].find_all('td')[1].text)
     else:
       seller_phone_number.append('-')
       seller_email.append('-')
