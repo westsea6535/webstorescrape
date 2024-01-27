@@ -17,17 +17,16 @@ def product_titles_present(driver):
   return filtered_titles
 # Find the button to click
 def delivery_guide_button_present(driver):
-  try :
-    return driver.find_element(By.XPATH, "//div[@id='btfTab']//ul[@class='tab-titles']//li[@name='etc']")
-  except NoSuchElementException:
-    return None
+  print("try find")
+  return driver.find_element(By.XPATH, "//div[@id='btfTab']//ul[@class='tab-titles']//li[@name='etc']")
+
 # Find the table that contains target information
 def seller_table_present(driver):
   return driver.find_element(By.XPATH, "//div[@class='product-item__table product-seller']//table[@class='prod-delivery-return-policy-table']")
 
 def scrape_coupang(keyword, page):
   logConfig.logger.info(f'{keyword} 키워드로 쿠팡 스토어 크롤링 시작')
-
+  logConfig.logger.info(f'총 {page} 페이지 검색')
   # Windowless mode feature (Chrome) and chrome message handling.
   options = webdriver.ChromeOptions()
   options.headless = True # Runs driver without opening a chrome browser.
@@ -74,7 +73,13 @@ def scrape_coupang(keyword, page):
     driver.get(target_url)
     time.sleep(1.5)
     # Click '배송/교환/반품 안내' button
-    delivery_guide_button = wait.until(delivery_guide_button_present)
+    delivery_guide_button = None
+
+    try :
+      delivery_guide_button = wait.until(delivery_guide_button_present)
+    except :
+      print("exception")
+
     if delivery_guide_button is None:
       continue
 
@@ -104,6 +109,7 @@ def scrape_coupang(keyword, page):
       seller_email.append('-')
       print('no tbody')
     logConfig.logger.info(f'{idx + 1}번째 상품 완료')
+    print(f'{idx + 1}번째 상품 완료')
 
   # Close the WebDriver when done
   driver.quit()

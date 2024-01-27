@@ -3,3 +3,6 @@ result_coupang/
 result_kakao/
 result_ohouse/
 log/
+build/
+store_scraper/
+store_scraper.zip

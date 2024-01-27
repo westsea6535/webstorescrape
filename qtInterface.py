@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QRadioButton
+from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QRadioButton, QMessageBox
 from PyQt5.QtGui import QIntValidator
 from kakao import scrape_kakao_store
 from coupang import scrape_coupang
@@ -26,7 +26,7 @@ class guiForm(QWidget):
 
     self.label_page = QLabel('페이지 개수')
     self.input_page = QLineEdit()
-    self.input_page.setValidator(QIntValidator(1, 9))  # 숫자만 입력 가능하도록 설정
+    self.input_page.setValidator(QIntValidator(1, 999))  # 숫자만 입력 가능하도록 설정
 
     self.button_search = QPushButton('확인')
 
@@ -56,7 +56,13 @@ class guiForm(QWidget):
     self.setGeometry(1000, 1000, 1000, 300)
     self.setFixedSize(1000, 300)
 
-
+  def showDialog(self):
+      msgBox = QMessageBox()
+      msgBox.setIcon(QMessageBox.Information)
+      msgBox.setText("작업이 완료되었습니다!")
+      msgBox.setWindowTitle("작업 완료")
+      msgBox.setStandardButtons(QMessageBox.Ok)
+      msgBox.exec_()
 
   def onButtonClick(self):
     def save_seller_dataframe(result, download_path, keyword):
@@ -99,3 +105,4 @@ class guiForm(QWidget):
     print(f"플랫폼: {platform}")
     print(f"검색어: {keywords}")
     print(f"페이지 번호: {page}")
+    self.showDialog()

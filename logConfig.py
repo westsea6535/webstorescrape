@@ -15,8 +15,8 @@ second = current_datetime.second
 if not os.path.exists('log'):
   os.makedirs('log')
 
-numeric_datetime = f"log/{year:04d}{month:02d}{day:02d}{hour:02d}{minute:02d}{second:02d}.txt"
-
+numeric_datetime = f"log/{year:04d}년{month:02d}월{day:02d}일{hour:02d}시{minute:02d}분{second:02d}초.txt"
 # Configure logging here
 logging.basicConfig(filename=numeric_datetime, level=logging.INFO, format='%(asctime)s - %(message)s')
+
 logger = logging.getLogger(__name__)
