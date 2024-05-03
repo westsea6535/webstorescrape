@@ -16,7 +16,9 @@ def product_titles_present(driver):
   return product_titles
 
 def paging_num_present(driver): 
-  return driver.find_elements(By.XPATH, "//div[@class='paging_num']/*[@class='link_paging']")
+  # print('paging_num_present')
+  return driver.find_elements(By.XPATH, "//div[@class='paging_num']/*[contains(@class, 'link_paging')]")
+
 def link_arrow_present(driver): 
   return driver.find_element(By.XPATH, "//button[@class='link_arrow'][2]")
 
