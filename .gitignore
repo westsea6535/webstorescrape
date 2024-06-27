@@ -7,3 +7,8 @@ build/
 store_scraper/
 store_scraper.zip
 chromedriver/
+/dist/
+
+test.py
+
+*.js

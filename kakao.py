@@ -80,19 +80,19 @@ def scrape_kakao_store(keyword, page):
   logConfig.logger.info(f'총 {len(seller_list)}개의 상품 검색 완료. 판매자 데이터 스크래핑 시작.')
 
   result = {
-    'profileImageUrl': [],
-    'name': [],
-    'introduce': [],
-    'phoneNumber': [],
-    'corporateName': [],
-    'presidentName': [],
-    'businessRegistrationNumber': [],
-    'onlineOrderRegistrationNumber': [],
-    'addressPost': [],
-    'domain': [],
-    'mainEmail': [],
-    'isFarmer': [],
-    'consultId': [],
+    # 'profileImageUrl': [],
+    '이름': [],
+    # 'introduce': [],
+    '대표전화': [],
+    '상호명': [],
+    '대표자': [],
+    '사업자등록번호': [],
+    '통신판매업번호': [],
+    '사업장 소재지': [],
+    # 'domain': [],
+    'e-mail': [],
+    # 'isFarmer': [],
+    # 'consultId': [],
   }
   # get each seller's data after getting seller list
   for idx, seller in enumerate(seller_list):
@@ -102,19 +102,19 @@ def scrape_kakao_store(keyword, page):
     if response.status_code == 200:
       json_data = response.json()
       print(json_data)
-      result['profileImageUrl'].append(json_data['data'].get('profileImageUrl', ''))
-      result['name'].append(json_data['data']['store'].get('name', ''))
-      result['introduce'].append(json_data['data']['store'].get('introduce', ''))
-      result['phoneNumber'].append(json_data['data']['store'].get('phoneNumber', ''))
-      result['corporateName'].append(json_data['data']['store'].get('corporateName', ''))
-      result['presidentName'].append(json_data['data']['store'].get('presidentName', ''))
-      result['businessRegistrationNumber'].append(json_data['data']['store'].get('businessRegistrationNumber', ''))
-      result['onlineOrderRegistrationNumber'].append(json_data['data']['store'].get('onlineOrderRegistrationNumber', ''))
-      result['addressPost'].append(json_data['data']['store'].get('addressPost', ''))
-      result['domain'].append(json_data['data']['store'].get('domain', ''))
-      result['mainEmail'].append(json_data['data']['store'].get('mainEmail', ''))
-      result['isFarmer'].append(json_data['data']['store'].get('isFarmer', ''))
-      result['consultId'].append(json_data['data']['store'].get('consultId', ''))
+      # result['profileImageUrl'].append(json_data['data'].get('profileImageUrl', ''))
+      result['이름'].append(json_data['data']['store'].get('name', ''))
+      # result['introduce'].append(json_data['data']['store'].get('introduce', ''))
+      result['대표전화'].append(json_data['data']['store'].get('phoneNumber', ''))
+      result['상호명'].append(json_data['data']['store'].get('corporateName', ''))
+      result['대표자'].append(json_data['data']['store'].get('presidentName', ''))
+      result['사업자등록번호'].append(json_data['data']['store'].get('businessRegistrationNumber', ''))
+      result['통신판매업번호'].append(json_data['data']['store'].get('onlineOrderRegistrationNumber', ''))
+      result['사업장 소재지'].append(json_data['data']['store'].get('addressPost', ''))
+      # result['domain'].append(json_data['data']['store'].get('domain', ''))
+      result['e-mail'].append(json_data['data']['store'].get('mainEmail', ''))
+      # result['isFarmer'].append(json_data['data']['store'].get('isFarmer', ''))
+      # result['consultId'].append(json_data['data']['store'].get('consultId', ''))
 
     logConfig.logger.info(f'{idx + 1}번째 상품 완료')
 

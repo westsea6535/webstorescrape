@@ -53,7 +53,7 @@ class guiForm(QWidget):
 
     # 창 제목 및 크기 설정
     self.setWindowTitle('검색 프로그램')
-    self.setGeometry(1000, 1000, 1000, 300)
+    self.setGeometry(500, 500, 1000, 300)
     self.setFixedSize(1000, 300)
 
   def showDialog(self):

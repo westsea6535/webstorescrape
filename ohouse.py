@@ -1,7 +1,7 @@
 import requests
 import logConfig
 
-headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"}
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
 
 def scrape_ohouse(keyword, page):
 
@@ -11,7 +11,7 @@ def scrape_ohouse(keyword, page):
   for i in range(page):
     url = f"https://ohou.se/productions/feed.json?v=7&query={keyword}&search_affect_type=Typing&page={page}&per=20"
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
 
     if response.status_code == 200:
       json_data = response.json()
@@ -53,10 +53,10 @@ def scrape_ohouse(keyword, page):
       logConfig.logger.info(f'Error while fetching product {idx + 1}. Error code: {response.status_code}')
     
   return {
-    'seller_info_company': seller_info_company,
-    'seller_info_representative': seller_info_representative,
-    'seller_info_cs_phone': seller_info_cs_phone,
-    'seller_info_address': seller_info_address,
-    'seller_info_email': seller_info_email,
-    'seller_info_license': seller_info_license,
+    '상호': seller_info_company,
+    '대표자': seller_info_representative,
+    '고객센터 전화번호': seller_info_cs_phone,
+    '사업장 소재지': seller_info_address,
+    'E-mail': seller_info_email,
+    '사업자 등록 번호': seller_info_license,
   }

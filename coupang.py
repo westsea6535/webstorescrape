@@ -60,7 +60,6 @@ def scrape_coupang(keyword, page):
   seller_phone_number = []
   seller_email = []
 
-
   def scrape_list_page(page):
     # URL to scrape
     url = f"https://www.coupang.com/np/search?component=&q={keyword}&channel=user&page={page}"
@@ -94,6 +93,7 @@ def scrape_coupang(keyword, page):
       delivery_guide_button = wait.until(delivery_guide_button_present)
     except :
       print("exception")
+      continue
 
     if delivery_guide_button is None:
       seller_phone_number.append('-')
@@ -135,8 +135,8 @@ def scrape_coupang(keyword, page):
   driver.quit()
 
   result = {}
-  result['product_link'] = link_list
-  result['seller_phone_number'] = seller_phone_number
-  result['seller_email'] = seller_email
+  result['링크'] = link_list
+  result['연락처'] = seller_phone_number
+  result['e-mail'] = seller_email
 
   return result
