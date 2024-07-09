@@ -12,3 +12,5 @@ chromedriver/
 test.py
 
 *.js
+*.exe
+*.zip
