@@ -29,26 +29,12 @@ def scrape_coupang(keyword, page):
   logConfig.logger.info(f'{keyword} 키워드로 쿠팡 스토어 크롤링 시작')
   logConfig.logger.info(f'총 {page} 페이지 검색')
 
-  chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
-
-  driver_path = f'./chromedriver/{chrome_ver}/chromedriver.exe'
-
-
-  if os.path.exists(driver_path):
-    print(f"chrom driver is installed: {driver_path}")
-  else:
-    if not os.path.exists(f'./chromedriver'):
-      os.makedirs(f'./chromedriver')
-    print(f"install the chrome driver(ver: {chrome_ver})")
-    chromedriver_autoinstaller.install(path=f'./chromedriver')
-
-  # Windowless mode feature (Chrome) and chrome message handling.
   options = webdriver.ChromeOptions()
   options.headless = True # Runs driver without opening a chrome browser.
   options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
   # Initialization of web driver
-  driver = webdriver.Chrome(service=ChromeService(executable_path=driver_path), options = options)
+  driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options = options)
   driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument",
                           {"source": """ Object.defineProperty(navigator, 'webdriver', {get: () => undefined }) """ }
                         )

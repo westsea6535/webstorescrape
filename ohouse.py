@@ -21,24 +21,13 @@ import logConfig
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
 
 def scrape_ohouse(keyword, page):
-  chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
-  driver_path = f'./chromedriver/{chrome_ver}/chromedriver.exe'
-
-  if os.path.exists(driver_path):
-    print(f"chrom driver is installed: {driver_path}")
-  else:
-    if not os.path.exists(f'./chromedriver'):
-      os.makedirs(f'./chromedriver')
-    print(f"install the chrome driver(ver: {chrome_ver})")
-    chromedriver_autoinstaller.install(path=f'./chromedriver')
-
   # Windowless mode feature (Chrome) and chrome message handling.
   options = webdriver.ChromeOptions()
   options.headless = True # Runs driver without opening a chrome browser.
   options.add_experimental_option("excludeSwitches", ["enable-logging"])
 
   # Initialization of web driver
-  driver = webdriver.Chrome(service=ChromeService(executable_path=driver_path), options = options)
+  driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options = options)
   driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument",
                           {"source": """ Object.defineProperty(navigator, 'webdriver', {get: () => undefined }) """ }
                         )
@@ -50,7 +39,6 @@ def scrape_ohouse(keyword, page):
   # Use WebDriverWait to wait for product titles to be present
   wait = WebDriverWait(driver, 10)  # Adjust the timeout as needed
 
-
   logConfig.logger.info(f'{keyword} 키워드로 오늘의 집 크롤링 시작')
   product_id_list = []
 
@@ -58,7 +46,7 @@ def scrape_ohouse(keyword, page):
     try:
       time.sleep(random.random() * 5 + 3)
 
-      url = f"https://ohou.se/productions/feed.json?v=7&query={keyword}&search_affect_type=Typing&page={page}&per=20"
+      url = f"https://ohou.se/productions/feed.json?v=7&query={keyword}&search_affect_type=Typing&page={i}&per=20"
 
       # Navigate to the URL
       driver.get(url)
@@ -96,7 +84,7 @@ def scrape_ohouse(keyword, page):
 
   for idx, product_id in enumerate(product_id_list):
     try:
-      time.sleep(random.random() * 5 + 3)
+      time.sleep(random.random() * 3 + 1)
       url = f"https://ohou.se/productions/{product_id}/delivery.json"
       print(url)
 
